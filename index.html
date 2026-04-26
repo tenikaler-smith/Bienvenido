@@ -3,325 +3,410 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bienvenida — Mensajes Bíblicos</title>
+  <title>Templo Vida Nueva en Jesús — Mensajes Bíblicos</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --gold: #ffd966;
-      --gold-dim: rgba(255,217,102,0.3);
-      --text: #f5e6c8;
-      --text-dim: #e8dcc8;
+      --bg-deep:   #07111e;
+      --bg-navy:   #0c2340;
+      --bg-mid:    #113560;
+      --sky:       #3d82c4;
+      --sky-light: #87ceeb;
+      --gold:      #d4af37;
+      --gold-br:   #f0c832;
+      --gold-dim:  rgba(212,175,55,0.3);
+      --white:     #ffffff;
+      --text:      #e8f4fd;
+      --text-dim:  #b8d4f0;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
       min-height: 100vh;
-      background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 40%, #0d2137 100%);
+      background: radial-gradient(ellipse at top, #0f2a4a 0%, var(--bg-deep) 70%);
       font-family: 'Georgia', serif;
       color: var(--text);
       overflow-x: hidden;
     }
 
-    #canvas-particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 0;
+    /* ── Canvas partículas ── */
+    #cvs {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
     }
 
-    .bg-anim {
-      position: fixed;
-      inset: 0;
+    /* ── Fondo animado ── */
+    .bg-glow {
+      position: fixed; inset: 0;
       background:
-        radial-gradient(ellipse at 20% 50%, rgba(120,60,200,0.15) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba(50,100,200,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse at 60% 80%, rgba(200,100,50,0.08) 0%, transparent 60%);
-      animation: bgPulse 8s ease-in-out infinite alternate;
-      pointer-events: none;
-      z-index: 0;
+        radial-gradient(ellipse at 15% 40%, rgba(61,130,196,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 20%, rgba(212,175,55,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse at 55% 85%, rgba(135,206,235,0.08) 0%, transparent 50%);
+      animation: glow 9s ease-in-out infinite alternate;
+      pointer-events: none; z-index: 0;
     }
 
-    @keyframes bgPulse {
-      from { opacity: 0.6; }
+    @keyframes glow {
+      from { opacity: .5; }
       to   { opacity: 1; }
     }
 
     .container {
-      position: relative;
-      z-index: 1;
-      max-width: 920px;
+      position: relative; z-index: 1;
+      max-width: 940px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 0 20px 60px;
     }
 
-    /* ── Header ── */
-    header { text-align: center; padding: 70px 20px 40px; }
+    /* ══════════════════════════
+       HEADER
+    ══════════════════════════ */
+    header {
+      text-align: center;
+      padding: 56px 20px 36px;
+    }
 
-    .cruz {
-      font-size: 64px;
+    /* Logo con halo animado */
+    .logo-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 24px;
+    }
+
+    .logo-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      background: conic-gradient(var(--gold-br), var(--sky-light), var(--gold), var(--sky), var(--gold-br));
+      animation: spinHalo 6s linear infinite;
+      z-index: -1;
+    }
+
+    .logo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      background: var(--bg-deep);
+      z-index: -1;
+    }
+
+    @keyframes spinHalo {
+      to { transform: rotate(360deg); }
+    }
+
+    .logo-img {
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
       display: block;
-      margin-bottom: 20px;
-      animation: crucBrillo 3s ease-in-out infinite alternate;
+      animation: logoPulse 4s ease-in-out infinite alternate;
+      position: relative; z-index: 1;
     }
 
-    @keyframes crucBrillo {
-      from { filter: drop-shadow(0 0 8px rgba(255,217,102,0.4)); transform: scale(1); }
-      to   { filter: drop-shadow(0 0 30px rgba(255,217,102,1)); transform: scale(1.08); }
+    @keyframes logoPulse {
+      from { filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); }
+      to   { filter: drop-shadow(0 0 28px rgba(212,175,55,0.95)); }
     }
 
     header h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      color: var(--gold);
-      letter-spacing: 3px;
+      font-size: clamp(1.6rem, 4.5vw, 3rem);
+      color: var(--gold-br);
+      letter-spacing: 2px;
+      line-height: 1.2;
+      text-shadow: 0 2px 16px rgba(212,175,55,0.4);
       overflow: hidden;
-      border-right: 3px solid var(--gold);
+      border-right: 3px solid var(--gold-br);
       white-space: nowrap;
       width: 0;
-      margin: 0 auto;
-      animation: typewriter 2.5s steps(24, end) 0.5s forwards, cursorBlink 0.8s step-end 3s infinite;
+      margin: 0 auto 10px;
+      animation: typer 2.4s steps(28,end) .3s forwards, blink .75s step-end 2.8s infinite;
     }
 
-    @keyframes typewriter {
-      from { width: 0; }
-      to   { width: 100%; }
-    }
-
-    @keyframes cursorBlink {
-      50% { border-color: transparent; }
-    }
+    @keyframes typer { to { width: 100%; } }
+    @keyframes blink { 50% { border-color: transparent; } }
 
     header p.subtitulo {
-      font-size: 1.1rem;
-      color: #c9b8e8;
+      font-size: 1.05rem;
+      color: var(--sky-light);
       font-style: italic;
-      margin-top: 14px;
       opacity: 0;
-      animation: fadeUp 1s ease 3.2s forwards;
+      animation: fadeUp .9s ease 3s forwards;
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Reveal on scroll ── */
+    /* ══════════════════════════
+       UTILIDADES
+    ══════════════════════════ */
+    .divisor {
+      text-align: center;
+      font-size: 1.1rem;
+      letter-spacing: 10px;
+      color: var(--gold);
+      margin: 28px 0;
+      opacity: .55;
+    }
+
+    /* Reveal on scroll */
     .reveal {
       opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
+      transform: translateY(38px);
+      transition: opacity .75s ease, transform .75s ease;
     }
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
 
-    /* ── Versículo del Día ── */
-    .versiculo-del-dia {
+    /* ══════════════════════════
+       CARRUSEL automático
+    ══════════════════════════ */
+    .carousel-wrap {
       position: relative;
-      background: rgba(255,255,255,0.05);
-      border-radius: 20px;
-      padding: 44px 38px;
-      margin: 50px 0;
-      text-align: center;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
-      overflow: hidden;
-    }
-
-    /* Borde animado con gradiente giratorio */
-    .versiculo-del-dia::before {
-      content: '';
-      position: absolute;
-      inset: -2px;
       border-radius: 22px;
-      background: conic-gradient(from var(--angle, 0deg), var(--gold), #a78bfa, #60a5fa, var(--gold));
-      z-index: -1;
-      animation: rotateBorder 4s linear infinite;
-    }
-
-    @property --angle {
-      syntax: '<angle>';
-      initial-value: 0deg;
-      inherits: false;
-    }
-
-    @keyframes rotateBorder {
-      to { --angle: 360deg; }
-    }
-
-    .versiculo-del-dia .inner {
-      background: #1a0a2e;
-      border-radius: 18px;
-      padding: 36px 30px;
-    }
-
-    .emoji-libro {
-      font-size: 3rem;
-      display: block;
-      margin-bottom: 14px;
-      animation: flotante 3s ease-in-out infinite;
-    }
-
-    @keyframes flotante {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(-10px); }
-    }
-
-    .versiculo-del-dia h2 {
-      color: var(--gold);
-      font-size: 0.9rem;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      margin-bottom: 22px;
-      opacity: 0.85;
-    }
-
-    #texto-dia {
-      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-      line-height: 1.8;
-      color: #fff8e7;
-      font-style: italic;
-      margin-bottom: 18px;
-      transition: opacity 0.45s, transform 0.45s;
-    }
-
-    #referencia-dia {
-      font-size: 1rem;
-      color: var(--gold);
-      font-weight: bold;
-      transition: opacity 0.45s;
-    }
-
-    .btn-nuevo {
-      margin-top: 26px;
-      background: rgba(255,217,102,0.1);
-      border: 1px solid rgba(255,217,102,0.5);
-      color: var(--gold);
-      padding: 11px 30px;
-      border-radius: 50px;
-      font-size: 0.95rem;
-      font-family: 'Georgia', serif;
-      cursor: pointer;
-      position: relative;
+      margin: 44px 0;
+      padding: 3px; /* grosor del borde animado */
       overflow: hidden;
-      transition: color 0.3s, transform 0.2s;
     }
 
-    .btn-nuevo::before {
-      content: '';
+    /* Borde giratorio: spinner dentro del wrapper */
+    .carousel-wrap .spin-ring {
       position: absolute;
-      inset: 0;
-      background: var(--gold);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.35s ease;
+      inset: -100%;
+      background: conic-gradient(var(--gold-br) 0%, var(--sky-light) 25%, var(--gold) 50%, var(--sky) 75%, var(--gold-br) 100%);
+      animation: spinRing 4s linear infinite;
       z-index: 0;
     }
 
-    .btn-nuevo:hover::before { transform: scaleX(1); }
-    .btn-nuevo:hover { color: #1a0a2e; transform: scale(1.04); }
-    .btn-nuevo span { position: relative; z-index: 1; }
+    @keyframes spinRing { to { transform: rotate(360deg); } }
 
-    /* ── Versículo Hero ── */
-    .versiculo-hero {
-      background: rgba(255,255,255,0.05);
+    .carousel-inner {
+      position: relative; z-index: 1;
+      background: linear-gradient(145deg, #0a1e34, #0d2b4e);
+      border-radius: 20px;
+      padding: 46px 38px;
+      text-align: center;
+    }
+
+    .carousel-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 12px;
+      animation: float 3.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+
+    .carousel-label {
+      font-size: .8rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      opacity: .8;
+    }
+
+    .carousel-slides { position: relative; min-height: 120px; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity .7s ease, transform .7s ease;
+      transform: translateY(16px);
+      pointer-events: none;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      position: relative;
+    }
+
+    .slide blockquote {
+      font-size: clamp(1rem, 2.4vw, 1.4rem);
+      line-height: 1.8;
+      color: #fff8e7;
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+
+    .slide cite {
+      font-size: .95rem;
+      color: var(--gold-br);
+      font-weight: bold;
+      font-style: normal;
+    }
+
+    /* Dots del carrusel */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 26px;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(212,175,55,0.25);
+      border: 1px solid var(--gold-dim);
+      cursor: pointer;
+      transition: background .3s, transform .3s;
+    }
+
+    .dot.active {
+      background: var(--gold-br);
+      transform: scale(1.35);
+    }
+
+    /* Barra de progreso */
+    .progress-bar {
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--sky), var(--gold-br));
+      width: 0%;
+      border-radius: 2px;
+      transition: width linear;
+    }
+
+    /* ══════════════════════════
+       VERSÍCULO HERO
+    ══════════════════════════ */
+    .hero-verse {
+      background: linear-gradient(135deg, rgba(61,130,196,0.15), rgba(212,175,55,0.08));
       border: 1px solid var(--gold-dim);
       border-radius: 18px;
       padding: 44px 38px;
       margin: 40px 0;
       text-align: center;
       backdrop-filter: blur(6px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 36px rgba(0,0,0,0.4),
+                  inset 0 1px 0 rgba(255,255,255,0.06);
     }
 
-    .versiculo-hero blockquote {
-      font-size: clamp(1.2rem, 3vw, 1.75rem);
-      line-height: 1.75;
-      color: #fff8e7;
+    .hero-verse blockquote {
+      font-size: clamp(1.15rem, 2.8vw, 1.7rem);
+      line-height: 1.8;
+      color: #fff;
       font-style: italic;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
-    .versiculo-hero cite {
-      font-size: 1rem;
-      color: var(--gold);
-      font-style: normal;
+    .hero-verse cite {
+      font-size: .98rem;
+      color: var(--gold-br);
       font-weight: bold;
+      font-style: normal;
     }
 
-    /* ── Tarjetas ── */
+    /* ══════════════════════════
+       TARJETAS
+    ══════════════════════════ */
     .tarjetas {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+      gap: 22px;
       margin: 40px 0;
     }
 
     .tarjeta {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: linear-gradient(145deg, rgba(10,30,52,0.9), rgba(13,35,64,0.9));
+      border: 1px solid rgba(135,206,235,0.12);
       border-radius: 16px;
-      padding: 30px 26px;
+      padding: 28px 24px;
       position: relative;
       overflow: hidden;
-      transition: transform 0.35s cubic-bezier(.22,1,.36,1), box-shadow 0.35s, border-color 0.35s;
+      transition: transform .35s cubic-bezier(.22,1,.36,1),
+                  box-shadow .35s, border-color .35s;
     }
 
+    /* Luz que sigue el mouse */
     .tarjeta::before {
       content: '';
       position: absolute;
-      width: 200px; height: 200px;
+      width: 220px; height: 220px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,217,102,0.18) 0%, transparent 70%);
-      transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(212,175,55,0.14) 0%, transparent 70%);
+      transform: translate(-50%,-50%);
       left: var(--mx, 50%);
       top:  var(--my, 50%);
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: opacity .3s;
     }
 
     .tarjeta:hover::before { opacity: 1; }
 
     .tarjeta:hover {
       transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-      border-color: rgba(255,217,102,0.45);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.5),
+                  0 0 0 1px rgba(212,175,55,0.3);
+      border-color: rgba(212,175,55,0.35);
     }
+
+    /* Línea superior de color al hover */
+    .tarjeta::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--sky), var(--gold-br));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .35s ease;
+    }
+
+    .tarjeta:hover::after { transform: scaleX(1); }
 
     .tarjeta .icono {
       font-size: 2.2rem;
       display: block;
       margin-bottom: 14px;
-      transition: transform 0.3s;
+      transition: transform .3s;
     }
 
-    .tarjeta:hover .icono { transform: scale(1.2) rotate(-5deg); }
+    .tarjeta:hover .icono { transform: scale(1.2) rotate(-6deg); }
 
     .tarjeta blockquote {
-      font-size: 0.98rem;
+      font-size: .97rem;
       line-height: 1.7;
       color: var(--text-dim);
       font-style: italic;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .tarjeta cite {
-      font-size: 0.85rem;
-      color: var(--gold);
+      font-size: .84rem;
+      color: var(--gold-br);
       font-style: normal;
       font-weight: bold;
     }
 
-    /* ── Promesa ── */
+    /* ══════════════════════════
+       PROMESA
+    ══════════════════════════ */
     .promesa {
-      background: linear-gradient(135deg, rgba(255,217,102,0.1), rgba(255,150,50,0.07));
+      background: linear-gradient(135deg, rgba(212,175,55,0.09), rgba(61,130,196,0.07));
       border-left: 4px solid var(--gold);
-      border-radius: 0 14px 14px 0;
-      padding: 32px 30px;
+      border-radius: 0 16px 16px 0;
+      padding: 34px 32px;
       margin: 40px 0;
       position: relative;
       overflow: hidden;
@@ -330,91 +415,107 @@
     .promesa::after {
       content: '\275D';
       position: absolute;
-      right: 20px; top: 10px;
-      font-size: 6rem;
-      color: rgba(255,217,102,0.06);
+      right: 22px; top: 6px;
+      font-size: 7rem;
+      color: rgba(212,175,55,0.05);
       line-height: 1;
     }
 
-    .promesa h2 { color: var(--gold); font-size: 1.4rem; margin-bottom: 14px; }
-    .promesa p  { font-size: 1.05rem; line-height: 1.75; color: var(--text-dim); font-style: italic; }
-    .promesa cite { display: block; margin-top: 12px; color: var(--gold); font-style: normal; font-weight: bold; font-size: 0.9rem; }
+    .promesa h2 { color: var(--gold-br); font-size: 1.35rem; margin-bottom: 12px; }
+    .promesa p  { font-size: 1.04rem; line-height: 1.75; color: var(--text-dim); font-style: italic; }
+    .promesa cite { display: block; margin-top: 12px; color: var(--gold-br); font-style: normal; font-weight: bold; font-size: .88rem; }
 
-    /* ── Divisor ── */
-    .divisor {
-      text-align: center;
-      color: var(--gold);
-      font-size: 1.2rem;
-      letter-spacing: 10px;
-      margin: 32px 0;
-      opacity: 0.5;
-    }
-
-    /* ── Footer ── */
+    /* ══════════════════════════
+       FOOTER
+    ══════════════════════════ */
     footer {
       text-align: center;
-      padding: 44px 20px;
-      color: #a090c0;
-      font-size: 0.9rem;
-      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 48px 20px 36px;
+      border-top: 1px solid rgba(135,206,235,0.1);
       margin-top: 40px;
     }
 
-    footer span { color: var(--gold); }
+    footer .footer-logo {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      opacity: .7;
+      margin-bottom: 14px;
+    }
 
-    .fade-out { opacity: 0 !important; transform: translateY(10px) !important; }
+    footer p { color: #7090b0; font-size: .9rem; line-height: 1.7; }
+    footer span.heart { color: #e05;  }
+    footer span.gold  { color: var(--gold-br); }
 
-    /* ── Botón volver arriba ── */
+    footer .company {
+      margin-top: 10px;
+      font-size: .82rem;
+      color: var(--sky-light);
+      letter-spacing: 1px;
+      opacity: .7;
+    }
+
+    /* ══════════════════════════
+       BOTÓN SCROLL TOP
+    ══════════════════════════ */
     #btn-top {
       position: fixed;
-      bottom: 30px; right: 30px;
-      width: 46px; height: 46px;
-      background: rgba(255,217,102,0.12);
+      bottom: 28px; right: 28px;
+      width: 44px; height: 44px;
+      background: rgba(212,175,55,0.12);
       border: 1px solid var(--gold-dim);
       border-radius: 50%;
       color: var(--gold);
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       opacity: 0;
       transform: translateY(20px);
-      transition: opacity 0.4s, transform 0.4s, background 0.3s;
+      transition: opacity .4s, transform .4s, background .3s;
       z-index: 100;
     }
 
     #btn-top.show { opacity: 1; transform: translateY(0); }
-    #btn-top:hover { background: rgba(255,217,102,0.3); }
+    #btn-top:hover { background: rgba(212,175,55,0.28); }
   </style>
 </head>
 <body>
 
-  <canvas id="canvas-particles"></canvas>
-  <div class="bg-anim"></div>
+  <canvas id="cvs"></canvas>
+  <div class="bg-glow"></div>
 
   <div class="container">
 
+    <!-- ── Header ── -->
     <header>
-      <span class="cruz">✝</span>
-      <h1>Bienvenido a la Palabra</h1>
+      <div class="logo-wrap">
+        <img src="images/logo_transparente.png" alt="Templo Vida Nueva en Jesús" class="logo-img" />
+      </div>
+      <h1>Templo Vida Nueva en Jesús</h1>
       <p class="subtitulo">Mensajes de fe, esperanza y amor eterno</p>
     </header>
 
     <div class="divisor">✦ ✦ ✦</div>
 
-    <div class="versiculo-del-dia reveal">
-      <div class="inner">
-        <span class="emoji-libro">📖</span>
-        <h2>✨ Versículo del Día</h2>
-        <blockquote id="texto-dia"></blockquote>
-        <cite id="referencia-dia"></cite>
-        <br/>
-        <button class="btn-nuevo" onclick="nuevoVersiculo()">
-          <span>🔄 Nuevo versículo</span>
-        </button>
+    <!-- ── Carrusel automático ── -->
+    <div class="carousel-wrap reveal">
+      <div class="spin-ring"></div>
+      <div class="carousel-inner">
+        <span class="carousel-icon">📖</span>
+        <p class="carousel-label">✨ Versículo del Día</p>
+
+        <div class="carousel-slides" id="slides"></div>
+
+        <div class="carousel-dots" id="dots"></div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress"></div>
+        </div>
       </div>
     </div>
 
-    <div class="versiculo-hero reveal">
+    <!-- ── Versículo central ── -->
+    <div class="hero-verse reveal">
       <blockquote>
         "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito,
         para que todo aquel que en él cree, no se pierda, mas tenga vida eterna."
@@ -422,6 +523,7 @@
       <cite>— Juan 3:16</cite>
     </div>
 
+    <!-- ── Tarjetas ── -->
     <div class="tarjetas">
       <div class="tarjeta reveal">
         <span class="icono">🕊️</span>
@@ -455,17 +557,22 @@
       </div>
     </div>
 
+    <!-- ── Promesa ── -->
     <div class="promesa reveal">
       <h2>✨ Promesa de Isaías</h2>
-      <p>"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia."</p>
+      <p>"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo;
+         siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia."</p>
       <cite>— Isaías 41:10</cite>
     </div>
 
     <div class="divisor">✦ ✦ ✦</div>
 
+    <!-- ── Footer ── -->
     <footer>
+      <img src="images/logo_transparente.png" alt="Logo" class="footer-logo" />
       <p>Que la Palabra de Dios ilumine tu camino cada día.</p>
-      <p style="margin-top:10px;">Hecho con <span>♥</span> y fe</p>
+      <p>Hecho con <span class="heart">♥</span> y <span class="gold">fe</span></p>
+      <p class="company">TecniSof Solutions SA</p>
     </footer>
 
   </div>
@@ -473,126 +580,158 @@
   <button id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
 
   <script>
-    /* ── Partículas flotantes en canvas ── */
-    const canvas = document.getElementById('canvas-particles');
-    const ctx    = canvas.getContext('2d');
-    let W, H, particles = [];
+  /* ── Partículas ── */
+  (function() {
+    const cv = document.getElementById('cvs');
+    const cx = cv.getContext('2d');
+    let W, H, pts = [];
 
     function resize() {
-      W = canvas.width  = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      W = cv.width  = innerWidth;
+      H = cv.height = innerHeight;
     }
 
-    function Particle() {
-      this.reset = function() {
-        this.x  = Math.random() * W;
-        this.y  = Math.random() * H;
-        this.r  = Math.random() * 1.6 + 0.3;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.a  = Math.random();
-        this.va = (Math.random() * 0.006 + 0.002) * (Math.random() > 0.5 ? 1 : -1);
-        this.gold = Math.random() > 0.55;
+    function mkPt() {
+      return {
+        x:  Math.random() * W,
+        y:  Math.random() * H,
+        r:  Math.random() * 1.5 + 0.3,
+        vx: (Math.random() - .5) * .28,
+        vy: (Math.random() - .5) * .28,
+        a:  Math.random(),
+        va: (Math.random() * .006 + .002) * (Math.random() > .5 ? 1 : -1),
+        gold: Math.random() > .55
       };
-      this.reset();
     }
 
-    function initParticles() {
-      particles = [];
-      const n = Math.min(Math.floor((W * H) / 7000), 160);
-      for (let i = 0; i < n; i++) particles.push(new Particle());
+    function init() {
+      pts = [];
+      const n = Math.min(Math.floor(W * H / 7500), 150);
+      for (let i = 0; i < n; i++) pts.push(mkPt());
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
+    function loop() {
+      cx.clearRect(0, 0, W, H);
+      pts.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
         p.a += p.va;
         if (p.a <= 0 || p.a >= 1) p.va *= -1;
-        if (p.x < 0) p.x = W;
-        if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H;
-        if (p.y > H) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.gold
-          ? `rgba(255,217,102,${p.a * 0.85})`
-          : `rgba(180,160,255,${p.a * 0.6})`;
-        ctx.fill();
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        cx.beginPath();
+        cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        cx.fillStyle = p.gold
+          ? `rgba(212,175,55,${p.a * .9})`
+          : `rgba(135,206,235,${p.a * .6})`;
+        cx.fill();
       });
-      requestAnimationFrame(draw);
+      requestAnimationFrame(loop);
     }
 
-    window.addEventListener('resize', () => { resize(); initParticles(); });
-    resize(); initParticles(); draw();
+    addEventListener('resize', () => { resize(); init(); });
+    resize(); init(); loop();
+  })();
 
-    /* ── Versículo aleatorio ── */
+  /* ── Carrusel automático ── */
+  (function() {
     const versiculos = [
-      { texto: "El Señor es mi luz y mi salvación; ¿a quién temeré? El Señor es la fortaleza de mi vida; ¿de quién me atemorizaré?", ref: "Salmo 27:1" },
-      { texto: "Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.", ref: "Mateo 6:33" },
-      { texto: "Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.", ref: "Mateo 11:28" },
-      { texto: "Estad siempre gozosos. Orad sin cesar. Dad gracias en todo.", ref: "1 Tesalonicenses 5:16-18" },
-      { texto: "El amor es sufrido, es benigno; el amor no tiene envidia; el amor no es jactancioso, no se envanece.", ref: "1 Corintios 13:4" },
-      { texto: "No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir.", ref: "1 Corintios 10:13" },
-      { texto: "Porque el Señor da la sabiduría, y de su boca viene el conocimiento y la inteligencia.", ref: "Proverbios 2:6" },
-      { texto: "Encomienda al Señor tu camino, confía en él, y él actuará.", ref: "Salmo 37:5" },
-      { texto: "El nombre del Señor es torre fuerte; a ella corre el justo y está a salvo.", ref: "Proverbios 18:10" },
-      { texto: "Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.", ref: "Salmo 46:1" },
-      { texto: "El que comenzó en vosotros la buena obra, la perfeccionará hasta el día de Jesucristo.", ref: "Filipenses 1:6" },
-      { texto: "Jehová peleará por vosotros, y vosotros estaréis tranquilos.", ref: "Éxodo 14:14" },
-      { texto: "Con amor eterno te he amado; por tanto, te prolongué mi misericordia.", ref: "Jeremías 31:3" },
-      { texto: "Esforzaos y cobrad ánimo; no temáis, ni tengáis miedo, porque Jehová tu Dios es el que va contigo.", ref: "Deuteronomio 31:6" },
-      { texto: "Pedid, y se os dará; buscad, y hallaréis; llamad, y se os abrirá.", ref: "Mateo 7:7" },
-      { texto: "Cuando pases por las aguas, yo estaré contigo; y si por los ríos, no te anegarán.", ref: "Isaías 43:2" },
+      { t: "El Señor es mi luz y mi salvación; ¿a quién temeré? El Señor es la fortaleza de mi vida; ¿de quién me atemorizaré?", r: "Salmo 27:1" },
+      { t: "Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.", r: "Mateo 6:33" },
+      { t: "Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.", r: "Mateo 11:28" },
+      { t: "Estad siempre gozosos. Orad sin cesar. Dad gracias en todo.", r: "1 Tesalonicenses 5:16-18" },
+      { t: "El amor es sufrido, es benigno; el amor no tiene envidia; no es jactancioso, no se envanece.", r: "1 Corintios 13:4" },
+      { t: "Fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir.", r: "1 Corintios 10:13" },
+      { t: "Encomienda al Señor tu camino, confía en él, y él actuará.", r: "Salmo 37:5" },
+      { t: "Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.", r: "Salmo 46:1" },
+      { t: "El que comenzó en vosotros la buena obra, la perfeccionará hasta el día de Jesucristo.", r: "Filipenses 1:6" },
+      { t: "Con amor eterno te he amado; por tanto, te prolongué mi misericordia.", r: "Jeremías 31:3" },
+      { t: "Pedid, y se os dará; buscad, y hallaréis; llamad, y se os abrirá.", r: "Mateo 7:7" },
+      { t: "Cuando pases por las aguas, yo estaré contigo; y si por los ríos, no te anegarán.", r: "Isaías 43:2" },
     ];
 
-    let ultimoIdx = -1;
+    const INTERVAL = 6000;
+    let current = 0;
+    let timer, progTimer, progStart;
 
-    function nuevoVersiculo() {
-      const textoEl = document.getElementById('texto-dia');
-      const refEl   = document.getElementById('referencia-dia');
-      textoEl.classList.add('fade-out');
-      refEl.classList.add('fade-out');
-      setTimeout(() => {
-        let idx;
-        do { idx = Math.floor(Math.random() * versiculos.length); } while (idx === ultimoIdx);
-        ultimoIdx = idx;
-        textoEl.textContent = `"${versiculos[idx].texto}"`;
-        refEl.textContent   = `— ${versiculos[idx].ref}`;
-        textoEl.classList.remove('fade-out');
-        refEl.classList.remove('fade-out');
-      }, 450);
+    const slidesEl   = document.getElementById('slides');
+    const dotsEl     = document.getElementById('dots');
+    const progressEl = document.getElementById('progress');
+
+    /* Crear slides y dots */
+    versiculos.forEach((v, i) => {
+      const slide = document.createElement('div');
+      slide.className = 'slide' + (i === 0 ? ' active' : '');
+      slide.innerHTML = `<blockquote>"${v.t}"</blockquote><cite>— ${v.r}</cite>`;
+      slidesEl.appendChild(slide);
+
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goTo(i));
+      dotsEl.appendChild(dot);
+    });
+
+    function goTo(idx) {
+      const slides = slidesEl.querySelectorAll('.slide');
+      const dots   = dotsEl.querySelectorAll('.dot');
+
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+
+      current = idx;
+
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+
+      resetProgress();
     }
 
-    nuevoVersiculo();
+    function next() {
+      goTo((current + 1) % versiculos.length);
+    }
 
-    /* ── Scroll reveal ── */
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          observer.unobserve(entry.target);
-        }
+    function resetProgress() {
+      clearInterval(progTimer);
+      progressEl.style.transition = 'none';
+      progressEl.style.width = '0%';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          progressEl.style.transition = `width ${INTERVAL}ms linear`;
+          progressEl.style.width = '100%';
+        });
       });
-    }, { threshold: 0.1 });
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+      clearInterval(timer);
+      timer = setInterval(next, INTERVAL);
+    }
 
-    /* ── Luz que sigue el cursor en tarjetas ── */
-    document.querySelectorAll('.tarjeta').forEach(card => {
-      card.addEventListener('mousemove', e => {
-        const r = card.getBoundingClientRect();
-        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-        card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
-      });
+    resetProgress();
+  })();
+
+  /* ── Scroll reveal ── */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('in'), i * 90);
+        obs.unobserve(e.target);
+      }
     });
+  }, { threshold: 0.1 });
 
-    /* ── Botón volver arriba ── */
-    const btnTop = document.getElementById('btn-top');
-    window.addEventListener('scroll', () => {
-      btnTop.classList.toggle('show', window.scrollY > 300);
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  /* ── Luz en tarjetas ── */
+  document.querySelectorAll('.tarjeta').forEach(c => {
+    c.addEventListener('mousemove', e => {
+      const r = c.getBoundingClientRect();
+      c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      c.style.setProperty('--my', (e.clientY - r.top)  + 'px');
     });
+  });
+
+  /* ── Botón arriba ── */
+  const btnTop = document.getElementById('btn-top');
+  addEventListener('scroll', () => btnTop.classList.toggle('show', scrollY > 300));
   </script>
 </body>
 </html>
