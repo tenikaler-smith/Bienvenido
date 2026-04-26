@@ -219,7 +219,7 @@
       opacity: .8;
     }
 
-    .carousel-slides { position: relative; min-height: 120px; }
+    .carousel-slides { position: relative; min-height: 140px; }
 
     .slide {
       position: absolute; inset: 0;
@@ -483,6 +483,93 @@
 
     #btn-top.show { opacity: 1; transform: translateY(0); }
     #btn-top:hover { background: rgba(212,175,55,0.28); }
+
+    /* ══════════════════════════
+       RESPONSIVE — TABLET
+    ══════════════════════════ */
+    @media (max-width: 768px) {
+      header { padding: 40px 16px 28px; }
+
+      .logo-img { width: 120px; height: 120px; }
+      .logo-wrap::before { inset: -12px; }
+      .logo-wrap::after  { inset: -5px; }
+
+      header h1 {
+        font-size: clamp(1.3rem, 5vw, 2.2rem);
+        letter-spacing: 1px;
+        min-height: unset;
+      }
+
+      .carousel-inner  { padding: 32px 22px; }
+      .hero-verse      { padding: 30px 22px; }
+      .promesa         { padding: 26px 22px; }
+      .tarjetas        { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    }
+
+    /* ══════════════════════════
+       RESPONSIVE — MÓVIL
+    ══════════════════════════ */
+    @media (max-width: 480px) {
+      .container { padding: 0 14px 48px; }
+
+      header { padding: 32px 10px 22px; }
+
+      .logo-img { width: 100px; height: 100px; }
+      .logo-wrap::before { inset: -10px; }
+      .logo-wrap::after  { inset: -4px; }
+
+      header h1 {
+        font-size: clamp(1.2rem, 6vw, 1.8rem);
+        letter-spacing: 0px;
+        line-height: 1.4;
+        min-height: unset;
+      }
+
+      header p.subtitulo { font-size: .92rem; }
+
+      .divisor { letter-spacing: 6px; font-size: 1rem; }
+
+      /* Carrusel */
+      .carousel-inner { padding: 26px 16px; }
+      .carousel-icon  { font-size: 2.2rem; }
+      .carousel-label { font-size: .72rem; letter-spacing: 2px; }
+      .carousel-slides { min-height: 160px; }
+      .slide blockquote { font-size: .95rem; line-height: 1.7; }
+      .slide cite { font-size: .85rem; }
+      .dot { width: 7px; height: 7px; }
+
+      /* Versículo hero */
+      .hero-verse { padding: 24px 16px; }
+      .hero-verse blockquote { font-size: 1rem; line-height: 1.75; }
+
+      /* Tarjetas — 1 columna en móvil */
+      .tarjetas {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .tarjeta { padding: 22px 18px; }
+      .tarjeta .icono { font-size: 1.8rem; }
+      .tarjeta blockquote { font-size: .93rem; }
+
+      /* Promesa */
+      .promesa { padding: 22px 16px; }
+      .promesa h2 { font-size: 1.15rem; }
+      .promesa p  { font-size: .95rem; }
+
+      /* Footer */
+      footer { padding: 36px 14px 28px; }
+
+      /* Botón arriba */
+      #btn-top { bottom: 18px; right: 18px; width: 40px; height: 40px; }
+    }
+
+    /* Pantallas muy pequeñas (< 360px) */
+    @media (max-width: 360px) {
+      header h1 { font-size: 1.1rem; }
+      .carousel-inner { padding: 20px 12px; }
+      .hero-verse { padding: 20px 12px; }
+    }
   </style>
 </head>
 <body>
