@@ -7,142 +7,230 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    :root {
+      --gold: #ffd966;
+      --gold-dim: rgba(255,217,102,0.3);
+      --text: #f5e6c8;
+      --text-dim: #e8dcc8;
+    }
+
+    html { scroll-behavior: smooth; }
+
     body {
       min-height: 100vh;
       background: linear-gradient(135deg, #1a0a2e 0%, #2d1b4e 40%, #0d2137 100%);
       font-family: 'Georgia', serif;
-      color: #f5e6c8;
+      color: var(--text);
       overflow-x: hidden;
     }
 
-    body::before {
-      content: '';
+    #canvas-particles {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background-image:
-        radial-gradient(1px 1px at 20% 30%, rgba(255,255,200,0.8) 0%, transparent 100%),
-        radial-gradient(1px 1px at 60% 15%, rgba(255,255,200,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 80% 50%, rgba(255,255,200,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 40% 70%, rgba(255,255,200,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 10% 85%, rgba(255,255,200,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 90% 80%, rgba(255,255,200,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 90%, rgba(255,255,200,0.5) 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 40%, rgba(255,255,200,0.7) 0%, transparent 100%),
-        radial-gradient(1px 1px at 30% 55%, rgba(255,255,200,0.4) 0%, transparent 100%),
-        radial-gradient(2px 2px at 85% 20%, rgba(255,255,200,0.9) 0%, transparent 100%);
       pointer-events: none;
       z-index: 0;
+    }
+
+    .bg-anim {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(120,60,200,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(50,100,200,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 60% 80%, rgba(200,100,50,0.08) 0%, transparent 60%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgPulse {
+      from { opacity: 0.6; }
+      to   { opacity: 1; }
     }
 
     .container {
       position: relative;
       z-index: 1;
-      max-width: 900px;
+      max-width: 920px;
       margin: 0 auto;
       padding: 40px 20px;
     }
 
-    header {
-      text-align: center;
-      padding: 60px 20px 40px;
-    }
+    /* ── Header ── */
+    header { text-align: center; padding: 70px 20px 40px; }
 
     .cruz {
-      font-size: 60px;
+      font-size: 64px;
       display: block;
-      margin-bottom: 16px;
-      animation: brillo 3s ease-in-out infinite alternate;
+      margin-bottom: 20px;
+      animation: crucBrillo 3s ease-in-out infinite alternate;
     }
 
-    @keyframes brillo {
-      from { text-shadow: 0 0 20px rgba(255, 215, 100, 0.5); }
-      to   { text-shadow: 0 0 50px rgba(255, 215, 100, 1); }
+    @keyframes crucBrillo {
+      from { filter: drop-shadow(0 0 8px rgba(255,217,102,0.4)); transform: scale(1); }
+      to   { filter: drop-shadow(0 0 30px rgba(255,217,102,1)); transform: scale(1.08); }
     }
 
     header h1 {
       font-size: clamp(2rem, 5vw, 3.5rem);
-      color: #ffd966;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.5);
-      margin-bottom: 12px;
+      color: var(--gold);
+      letter-spacing: 3px;
+      overflow: hidden;
+      border-right: 3px solid var(--gold);
+      white-space: nowrap;
+      width: 0;
+      margin: 0 auto;
+      animation: typewriter 2.5s steps(24, end) 0.5s forwards, cursorBlink 0.8s step-end 3s infinite;
+    }
+
+    @keyframes typewriter {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+
+    @keyframes cursorBlink {
+      50% { border-color: transparent; }
     }
 
     header p.subtitulo {
       font-size: 1.1rem;
       color: #c9b8e8;
       font-style: italic;
+      margin-top: 14px;
+      opacity: 0;
+      animation: fadeUp 1s ease 3.2s forwards;
     }
 
-    /* Versículo del día aleatorio */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Reveal on scroll ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Versículo del Día ── */
     .versiculo-del-dia {
-      background: linear-gradient(135deg, rgba(255,217,102,0.15), rgba(255,140,50,0.1));
-      border: 2px solid rgba(255, 217, 102, 0.5);
-      border-radius: 18px;
-      padding: 40px 36px;
-      margin: 40px 0;
-      text-align: center;
-      box-shadow: 0 0 40px rgba(255, 217, 102, 0.1), 0 8px 32px rgba(0,0,0,0.4);
       position: relative;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 44px 38px;
+      margin: 50px 0;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.4);
       overflow: hidden;
     }
 
+    /* Borde animado con gradiente giratorio */
     .versiculo-del-dia::before {
-      content: '📖';
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 22px;
+      background: conic-gradient(from var(--angle, 0deg), var(--gold), #a78bfa, #60a5fa, var(--gold));
+      z-index: -1;
+      animation: rotateBorder 4s linear infinite;
+    }
+
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes rotateBorder {
+      to { --angle: 360deg; }
+    }
+
+    .versiculo-del-dia .inner {
+      background: #1a0a2e;
+      border-radius: 18px;
+      padding: 36px 30px;
+    }
+
+    .emoji-libro {
       font-size: 3rem;
       display: block;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+      animation: flotante 3s ease-in-out infinite;
+    }
+
+    @keyframes flotante {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
     }
 
     .versiculo-del-dia h2 {
-      color: #ffd966;
-      font-size: 1rem;
-      letter-spacing: 3px;
+      color: var(--gold);
+      font-size: 0.9rem;
+      letter-spacing: 4px;
       text-transform: uppercase;
-      margin-bottom: 20px;
-      opacity: 0.8;
+      margin-bottom: 22px;
+      opacity: 0.85;
     }
 
     #texto-dia {
       font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-      line-height: 1.75;
+      line-height: 1.8;
       color: #fff8e7;
       font-style: italic;
-      margin-bottom: 16px;
-      transition: opacity 0.5s;
+      margin-bottom: 18px;
+      transition: opacity 0.45s, transform 0.45s;
     }
 
     #referencia-dia {
       font-size: 1rem;
-      color: #ffd966;
+      color: var(--gold);
       font-weight: bold;
-      transition: opacity 0.5s;
+      transition: opacity 0.45s;
     }
 
     .btn-nuevo {
-      margin-top: 24px;
-      background: rgba(255, 217, 102, 0.15);
-      border: 1px solid rgba(255, 217, 102, 0.5);
-      color: #ffd966;
-      padding: 10px 28px;
+      margin-top: 26px;
+      background: rgba(255,217,102,0.1);
+      border: 1px solid rgba(255,217,102,0.5);
+      color: var(--gold);
+      padding: 11px 30px;
       border-radius: 50px;
       font-size: 0.95rem;
       font-family: 'Georgia', serif;
       cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s, transform 0.2s;
     }
 
-    .btn-nuevo:hover {
-      background: rgba(255, 217, 102, 0.3);
-      transform: scale(1.04);
+    .btn-nuevo::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s ease;
+      z-index: 0;
     }
 
-    /* Versículo destacado */
+    .btn-nuevo:hover::before { transform: scaleX(1); }
+    .btn-nuevo:hover { color: #1a0a2e; transform: scale(1.04); }
+    .btn-nuevo span { position: relative; z-index: 1; }
+
+    /* ── Versículo Hero ── */
     .versiculo-hero {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 217, 102, 0.3);
-      border-radius: 16px;
-      padding: 40px 36px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--gold-dim);
+      border-radius: 18px;
+      padding: 44px 38px;
       margin: 40px 0;
       text-align: center;
       backdrop-filter: blur(6px);
@@ -150,21 +238,21 @@
     }
 
     .versiculo-hero blockquote {
-      font-size: clamp(1.2rem, 3vw, 1.7rem);
-      line-height: 1.7;
+      font-size: clamp(1.2rem, 3vw, 1.75rem);
+      line-height: 1.75;
       color: #fff8e7;
       font-style: italic;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .versiculo-hero cite {
       font-size: 1rem;
-      color: #ffd966;
+      color: var(--gold);
       font-style: normal;
       font-weight: bold;
     }
 
-    /* Tarjetas */
+    /* ── Tarjetas ── */
     .tarjetas {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -173,97 +261,136 @@
     }
 
     .tarjeta {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      padding: 28px 24px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      backdrop-filter: blur(4px);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 30px 26px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.35s cubic-bezier(.22,1,.36,1), box-shadow 0.35s, border-color 0.35s;
     }
 
+    .tarjeta::before {
+      content: '';
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,217,102,0.18) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      left: var(--mx, 50%);
+      top:  var(--my, 50%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tarjeta:hover::before { opacity: 1; }
+
     .tarjeta:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
-      border-color: rgba(255, 217, 102, 0.4);
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      border-color: rgba(255,217,102,0.45);
     }
 
     .tarjeta .icono {
-      font-size: 2rem;
-      margin-bottom: 14px;
+      font-size: 2.2rem;
       display: block;
+      margin-bottom: 14px;
+      transition: transform 0.3s;
     }
 
+    .tarjeta:hover .icono { transform: scale(1.2) rotate(-5deg); }
+
     .tarjeta blockquote {
-      font-size: 1rem;
-      line-height: 1.65;
-      color: #e8dcc8;
+      font-size: 0.98rem;
+      line-height: 1.7;
+      color: var(--text-dim);
       font-style: italic;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .tarjeta cite {
       font-size: 0.85rem;
-      color: #ffd966;
+      color: var(--gold);
       font-style: normal;
       font-weight: bold;
     }
 
-    /* Promesa */
+    /* ── Promesa ── */
     .promesa {
-      background: linear-gradient(135deg, rgba(255,217,102,0.12), rgba(255,150,50,0.08));
-      border-left: 4px solid #ffd966;
-      border-radius: 0 12px 12px 0;
-      padding: 30px 28px;
+      background: linear-gradient(135deg, rgba(255,217,102,0.1), rgba(255,150,50,0.07));
+      border-left: 4px solid var(--gold);
+      border-radius: 0 14px 14px 0;
+      padding: 32px 30px;
       margin: 40px 0;
+      position: relative;
+      overflow: hidden;
     }
 
-    .promesa h2 {
-      color: #ffd966;
-      font-size: 1.4rem;
-      margin-bottom: 14px;
+    .promesa::after {
+      content: '\275D';
+      position: absolute;
+      right: 20px; top: 10px;
+      font-size: 6rem;
+      color: rgba(255,217,102,0.06);
+      line-height: 1;
     }
 
-    .promesa p {
-      font-size: 1.05rem;
-      line-height: 1.7;
-      color: #e8dcc8;
-      font-style: italic;
+    .promesa h2 { color: var(--gold); font-size: 1.4rem; margin-bottom: 14px; }
+    .promesa p  { font-size: 1.05rem; line-height: 1.75; color: var(--text-dim); font-style: italic; }
+    .promesa cite { display: block; margin-top: 12px; color: var(--gold); font-style: normal; font-weight: bold; font-size: 0.9rem; }
+
+    /* ── Divisor ── */
+    .divisor {
+      text-align: center;
+      color: var(--gold);
+      font-size: 1.2rem;
+      letter-spacing: 10px;
+      margin: 32px 0;
+      opacity: 0.5;
     }
 
-    .promesa cite {
-      display: block;
-      margin-top: 10px;
-      color: #ffd966;
-      font-style: normal;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
-
+    /* ── Footer ── */
     footer {
       text-align: center;
-      padding: 40px 20px;
+      padding: 44px 20px;
       color: #a090c0;
       font-size: 0.9rem;
       border-top: 1px solid rgba(255,255,255,0.08);
       margin-top: 40px;
     }
 
-    footer span { color: #ffd966; }
+    footer span { color: var(--gold); }
 
-    .divisor {
-      text-align: center;
-      color: #ffd966;
-      font-size: 1.2rem;
-      letter-spacing: 8px;
-      margin: 30px 0;
-      opacity: 0.5;
+    .fade-out { opacity: 0 !important; transform: translateY(10px) !important; }
+
+    /* ── Botón volver arriba ── */
+    #btn-top {
+      position: fixed;
+      bottom: 30px; right: 30px;
+      width: 46px; height: 46px;
+      background: rgba(255,217,102,0.12);
+      border: 1px solid var(--gold-dim);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s, background 0.3s;
+      z-index: 100;
     }
 
-    /* Animación fade al cambiar versículo */
-    .fade-out { opacity: 0; }
+    #btn-top.show { opacity: 1; transform: translateY(0); }
+    #btn-top:hover { background: rgba(255,217,102,0.3); }
   </style>
 </head>
 <body>
+
+  <canvas id="canvas-particles"></canvas>
+  <div class="bg-anim"></div>
+
   <div class="container">
 
     <header>
@@ -274,17 +401,20 @@
 
     <div class="divisor">✦ ✦ ✦</div>
 
-    <!-- Versículo del Día Aleatorio -->
-    <div class="versiculo-del-dia">
-      <h2>✨ Versículo del Día</h2>
-      <blockquote id="texto-dia"></blockquote>
-      <cite id="referencia-dia"></cite>
-      <br/>
-      <button class="btn-nuevo" onclick="nuevoVersiculo()">🔄 Nuevo versículo</button>
+    <div class="versiculo-del-dia reveal">
+      <div class="inner">
+        <span class="emoji-libro">📖</span>
+        <h2>✨ Versículo del Día</h2>
+        <blockquote id="texto-dia"></blockquote>
+        <cite id="referencia-dia"></cite>
+        <br/>
+        <button class="btn-nuevo" onclick="nuevoVersiculo()">
+          <span>🔄 Nuevo versículo</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Versículo principal fijo -->
-    <div class="versiculo-hero">
+    <div class="versiculo-hero reveal">
       <blockquote>
         "Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito,
         para que todo aquel que en él cree, no se pierda, mas tenga vida eterna."
@@ -292,42 +422,40 @@
       <cite>— Juan 3:16</cite>
     </div>
 
-    <!-- Tarjetas -->
     <div class="tarjetas">
-      <div class="tarjeta">
+      <div class="tarjeta reveal">
         <span class="icono">🕊️</span>
         <blockquote>"La paz os dejo, mi paz os doy; yo no os la doy como el mundo la da. No se turbe vuestro corazón, ni tenga miedo."</blockquote>
         <cite>— Juan 14:27</cite>
       </div>
-      <div class="tarjeta">
+      <div class="tarjeta reveal">
         <span class="icono">💪</span>
         <blockquote>"Todo lo puedo en Cristo que me fortalece."</blockquote>
         <cite>— Filipenses 4:13</cite>
       </div>
-      <div class="tarjeta">
+      <div class="tarjeta reveal">
         <span class="icono">🌟</span>
         <blockquote>"Porque yo sé los pensamientos que tengo acerca de vosotros —dice el Señor—, pensamientos de bienestar y no de calamidad, para daros un futuro y una esperanza."</blockquote>
         <cite>— Jeremías 29:11</cite>
       </div>
-      <div class="tarjeta">
+      <div class="tarjeta reveal">
         <span class="icono">🙏</span>
         <blockquote>"Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia."</blockquote>
         <cite>— Proverbios 3:5</cite>
       </div>
-      <div class="tarjeta">
+      <div class="tarjeta reveal">
         <span class="icono">❤️</span>
         <blockquote>"Amarás al Señor tu Dios con todo tu corazón, con toda tu alma y con toda tu mente."</blockquote>
         <cite>— Mateo 22:37</cite>
       </div>
-      <div class="tarjeta">
+      <div class="tarjeta reveal">
         <span class="icono">🌄</span>
         <blockquote>"El Señor es mi pastor; nada me faltará. En lugares de delicados pastos me hará descansar."</blockquote>
         <cite>— Salmo 23:1-2</cite>
       </div>
     </div>
 
-    <!-- Promesa -->
-    <div class="promesa">
+    <div class="promesa reveal">
       <h2>✨ Promesa de Isaías</h2>
       <p>"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia."</p>
       <cite>— Isaías 41:10</cite>
@@ -337,12 +465,69 @@
 
     <footer>
       <p>Que la Palabra de Dios ilumine tu camino cada día.</p>
-      <p style="margin-top:8px;">Hecho con <span>♥</span> y fe</p>
+      <p style="margin-top:10px;">Hecho con <span>♥</span> y fe</p>
     </footer>
 
   </div>
 
+  <button id="btn-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
   <script>
+    /* ── Partículas flotantes en canvas ── */
+    const canvas = document.getElementById('canvas-particles');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function Particle() {
+      this.reset = function() {
+        this.x  = Math.random() * W;
+        this.y  = Math.random() * H;
+        this.r  = Math.random() * 1.6 + 0.3;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.a  = Math.random();
+        this.va = (Math.random() * 0.006 + 0.002) * (Math.random() > 0.5 ? 1 : -1);
+        this.gold = Math.random() > 0.55;
+      };
+      this.reset();
+    }
+
+    function initParticles() {
+      particles = [];
+      const n = Math.min(Math.floor((W * H) / 7000), 160);
+      for (let i = 0; i < n; i++) particles.push(new Particle());
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.a += p.va;
+        if (p.a <= 0 || p.a >= 1) p.va *= -1;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.gold
+          ? `rgba(255,217,102,${p.a * 0.85})`
+          : `rgba(180,160,255,${p.a * 0.6})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+    resize(); initParticles(); draw();
+
+    /* ── Versículo aleatorio ── */
     const versiculos = [
       { texto: "El Señor es mi luz y mi salvación; ¿a quién temeré? El Señor es la fortaleza de mi vida; ¿de quién me atemorizaré?", ref: "Salmo 27:1" },
       { texto: "Mas buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.", ref: "Mateo 6:33" },
@@ -357,37 +542,57 @@
       { texto: "El que comenzó en vosotros la buena obra, la perfeccionará hasta el día de Jesucristo.", ref: "Filipenses 1:6" },
       { texto: "Jehová peleará por vosotros, y vosotros estaréis tranquilos.", ref: "Éxodo 14:14" },
       { texto: "Con amor eterno te he amado; por tanto, te prolongué mi misericordia.", ref: "Jeremías 31:3" },
-      { texto: "Esforzaos y cobrad ánimo; no temáis, ni tengáis miedo de ellos, porque Jehová tu Dios es el que va contigo.", ref: "Deuteronomio 31:6" },
+      { texto: "Esforzaos y cobrad ánimo; no temáis, ni tengáis miedo, porque Jehová tu Dios es el que va contigo.", ref: "Deuteronomio 31:6" },
       { texto: "Pedid, y se os dará; buscad, y hallaréis; llamad, y se os abrirá.", ref: "Mateo 7:7" },
       { texto: "Cuando pases por las aguas, yo estaré contigo; y si por los ríos, no te anegarán.", ref: "Isaías 43:2" },
     ];
 
-    let ultimoIndice = -1;
+    let ultimoIdx = -1;
 
     function nuevoVersiculo() {
       const textoEl = document.getElementById('texto-dia');
       const refEl   = document.getElementById('referencia-dia');
-
       textoEl.classList.add('fade-out');
       refEl.classList.add('fade-out');
-
       setTimeout(() => {
         let idx;
-        do { idx = Math.floor(Math.random() * versiculos.length); }
-        while (idx === ultimoIndice);
-        ultimoIndice = idx;
-
-        const v = versiculos[idx];
-        textoEl.textContent = `"${v.texto}"`;
-        refEl.textContent   = `— ${v.ref}`;
-
+        do { idx = Math.floor(Math.random() * versiculos.length); } while (idx === ultimoIdx);
+        ultimoIdx = idx;
+        textoEl.textContent = `"${versiculos[idx].texto}"`;
+        refEl.textContent   = `— ${versiculos[idx].ref}`;
         textoEl.classList.remove('fade-out');
         refEl.classList.remove('fade-out');
-      }, 400);
+      }, 450);
     }
 
-    // Cargar uno al inicio
     nuevoVersiculo();
+
+    /* ── Scroll reveal ── */
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    /* ── Luz que sigue el cursor en tarjetas ── */
+    document.querySelectorAll('.tarjeta').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top)  + 'px');
+      });
+    });
+
+    /* ── Botón volver arriba ── */
+    const btnTop = document.getElementById('btn-top');
+    window.addEventListener('scroll', () => {
+      btnTop.classList.toggle('show', window.scrollY > 300);
+    });
   </script>
 </body>
 </html>
